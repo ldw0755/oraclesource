@@ -111,8 +111,91 @@ SELECT employee_id, first_name, job_id, (salary*commission_pct) AS commission
 FROM employees
 WHERE commission_pct IS NOT NULL;
 
+select last_name, salary, decode(trunc(salary/2000,0),
+                                                    0, 0.00,
+                                                    1, 0.09,
+                                                    2, 0.20,
+                                                    3, 0.30,
+                                                    4, 0.40,
+                                                    5, 0.42,
+                                                    6, 0.44,
+                                                    0.45) as taxt_rate
+from employees where department_id = 80;
+
+--다중행 함수
+----회사 내 최대 연봉 및 최대 연봉 차이
+SELECT (MAX(salary) - MIN(salary)) FROM employees;
+
+SELECT COUNT(DISTINCT manager_id) AS 매니저 FROM employees;
+
+--join 실습
+-- 자신의 담당 매니저의 고용일보다 빠른 입사자를 찾아 Hire_date, last_name, manager_id를 출력
+select e1.hire_date, e1.last_name, e2.manager_id
+from employees e1, employees e2
+where e1.employee_id = e2.manager_id
+group by e1.hire_date, e1.last_name, e2.manager_id;
+
+select e1.hire_date, e1.last_name, e2.manager_id
+from employees e1, employees e2
+where e1.employee_id = e2.manager_id 
+        and to_char(date(e1.hire_date, 'YYYMMDD')) < to_char(date(e2.hire_date, 'YYYMMDD'));
+
+select e1.hire_date, e1.last_name, e1.hire_date as 입사일,
+            e1.manager_id, e2.hire_date as 매니저_입사일
+from employees e1, employees e2
+where e1.manager_id = e2.employee_id and e1.hire_date < e2.hire_date;
+
+--도시 이름이 T로 시작하는 지역에 사는 사원 사번, last_name, 부서 번호 조회
+--(employees 의 department_id와 departments 의 department_id 연결 후
+--departments의 location_id와 locations의 location_id 조인) 2행
+select e.employee_id, e.last_name, d.department_id, 
+from 
+    employees e inner join departments d on e.department_id = d.department_id
+    right outer join locations l on d.location_id = l.location_id;
+
+--도시 이름이 T로 시작하는 지역에 사는 사원들의 사번, LAST_NAME, DEPARTMENT_ID 조회
+--조인 : EMPLOYEES(DEPARTMENT_ID) + DEPARTMENTS(DEPARTMENT_ID) --e.department_id = d.department_id
+--조인 : DEPARTMENTS(LOCATION_ID) + LOCATIONS(LOCATION_ID) --d.location_id = l.location_id
+SELECT employee_id, last_name, e.department_id
+FROM employees e, departments d, locations l
+WHERE e.department_id = d.department_id AND d.location_id = l.location_id AND city like 'T%';
+
+--위치 id = 1700 사원의 employee_id, last_name, salary
+--join : employees(department_id) + departments(department_id) -> 18행
+SELECT employee_id, last_name, d.department_id, salary
+FROM employees e, departments d
+WHERE e.department_id = d.department_id AND d.location_id =1700
+
+--department_name, location_id, 각 부서별 사원수, 각 부서별 평균연봉
+--join : employees + departments => 11행
+SELECT d.department_name, d.location_id, count(EMPLOYEE_ID), ROUND(avg(salary))
+FROM employees e, departments d
+WHERE e.department_id = d.department_id
+GROUP BY d.department_name, d.location_id;
+--확인 필요
+
+SELECT department_name, location_id, count(employee_id), round(avg(salary))
+FROM employees e, departments d
+WHERE e.department_id = d.department_id
+GROUP BY d.department_name, d.location_id;
 
 
+--EXECUTIVE 부서에서 근무하는 모든 사원들의 DEPARTMENT_ID, LAST_NAME, JOB_ID
+--JOIN : EMPLOYEES + DEPARTMENTS
+SELECT last_name, d.department_id, job_id
+FROM employees e, departments d
+WHERE e.department_id = d.department_id AND department_name = 'Executive';
 
+--기존 직업을 여전히 가지고 있는 사원들의 사번 및 job_id 조회
+--join : employees + job_history
+SELECT E.EMPLOYEE_ID, E.JOB_ID
+FROM EMPLOYEES E, JOB_HISTORY J
+WHERE E.EMPLOYEE_ID = J.EMPLOYEE_ID AND E.JOB_ID = J.JOB_ID;
 
+--각 사원별 소속 부서에서 자신보다 늦게 고용되었지만 보다 많은 연봉을 받는 사원의 LAST_NAME 조회
+--JOIN : EMPLOYEES + EMPLOYEES (SELF_JOIN)
 
+SELECT E1.DEPARTMENT_ID, E1.FIRST_NAME || ' ' || E1.LAST_NAME AS NAME
+FROM EMPLOYEES E1, EMPLOYEES E2
+WHERE E1.EMPLOYEE_ID = E2.EMPLOYEE_ID AND 
+             E1.HIRE_DATE < E2.HIRE_DATE AND E1.SALARY < E2.SALARY;

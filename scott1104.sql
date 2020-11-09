@@ -170,6 +170,78 @@ SELECT empno, ename, job, sal CASE
                                                         WHEN comm > 0 THEN '수당 : ' ||COMM
                                                     END AS COMM_TEXT FROM EMP;
 
+--실습 1
+----테이블 : emp
+----출력 : 부서번호(deptno), 
+----         평균 급여(avg_sal) - 소수점 제외, 최고급여(max_sal),
+----         최저급여(min_sal), 사원수(cnt)
+desc emp;
+
+SELECT deptno,
+              ROUND(AVG(sal)) AS avg_sal,
+              MAX(sal),
+              MIN(sal),
+              COUNT(*) AS cnt
+FROM emp GROUP BY deptno
+order by deptno;
+
+--실습2
+----테이블 : emp
+----같은 직종 종사자 3명 이상인
+----직책, 인원수
+desc emp;
+select job, count(job)
+form emp;
+
+--HAVING : GROUP BY 절에 조건 부여 / 단독 사용 X
+----각 부서의 직책별 평균 급여 + 평균 급여가 2000 이상
+SELECT DEPTNO, JOB, AVG(SAL)
+FROM EMP
+--WHERE AVG(SAL)>=2000 (X)
+HAVING AVG(SAL)>=2000
+GROUP BY DEPTNO, JOB
+--HAVING AVG(SAL)>=2000
+ORDER BY DEPTNO;
+
+--실습1
+--테이블 : emp
+--출력 : deptno, avg_sal, max_sal, min_sal, cnt
+--조건 : avg_sal = 소수점 제외
+--정렬 : deptno
+
+--floor : 소수점 버림
+select deptno, floor(avg(sal)), max(sal), min(sal), count(*)
+FROM emp
+GROUP BY deptno
+ORDER BY deptno;
+
+SELECT * FROM emp WHERE deptno = 10 ORDER BY sal;
+SELECT * FROM emp WHERE deptno = 20 ORDER BY sal;
+SELECT * FROM emp WHERE deptno = 30 ORDER BY sal;
+
+--실습 2
+--테이블 : emp
+--출력 : 직책, 인원수
+--조건 : 같은 직책, 사원수 3이상
+
+select job, count(job)
+from emp
+group by job
+having count(job)>=3;
+
+--실습3
+--입사 연도별 부서별 몇명 입사 하였나
+select to_char(hiredate, 'YYYY') as hire_year, deptno, count(*) as cnt
+from emp
+group by deptno, to_char(hiredate, 'YYYY')
+order by to_char(hiredate, 'YYYY') desc;
+
+
+select to_char(hiredate,
+from emp
+group by 
+
+
 
 
 

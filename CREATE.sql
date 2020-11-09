@@ -1,0 +1,94 @@
+CREATE TABLE TEST(
+    ID NUMBER(4),
+    NAME VARCHAR2(3));
+    
+DESC TEST;
+
+--한글은 글자 1개당 2 BYTE
+INSERT INTO TEST VALUES(1000, '홍길동');
+--영어는 글자 1개당 2 BYTE
+INSERT INTO TEST VALUES(1000, 'abc');
+
+SELECT * FROM TEST;
+
+--언어마다 서로 다른 바이트 처리 보완 : NCHAR, NVARCHAR2
+
+--NCHAR, NVARCHAR2 차이 : 고정된 길이 항상 가지고 있는가?
+--NCHAR : 1개 글자 입력 BUT 항상 4자리 유지
+--메모리 효율성 : VARCHAR2가 유리
+CREATE TABLE TEST2(
+    ID NCHAR(4),
+    NAME NVARCHAR2(3));
+
+INSERT INTO TEST2 VALUES ('황보강성', '홍길동');
+
+CREATE TABLE TEST3 (
+    ID NVARCHAR2(4),
+    NAME NVARCHAR2(4),
+    REG_DATE DATE);
+    
+INSERT INTO TEST3 VALUES ('황보강성', '홍길동', SYSDATE);
+INSERT INTO TEST3 VALUES ('황보강성', '홍길동', '2020-11-09');
+
+SELECT * FROM TEST3;
+
+--테이블 생성하기
+
+--
+DESC EMP;
+
+CREATE TABLE EMP_DDL(
+    EMPNO NUMBER(4),
+    ENAME VARCHAR2(10),
+    JOB VARCHAR2(9),
+    MGR NUMBER(4),
+    HIREDATE DATE,
+    SAL NUMBER(7,2), --전체 자리수 : 7자리 / 소수점 아래 2자리 포함 가능 = 자연수 자리 5자리
+    COMM NUMBER(7,2), -- 12345.78
+    DEPTNO NUMBER(2));
+
+--ALTER : 테이블 변경(수정)
+
+--COLUMN 추가
+ALTER TABLE EMP_DDL ADD HP VARCHAR2(20);
+
+--기존 COLUMN명 변경
+ALTER TABLE EMP_DDL RENAME COLUMN HP TO TEL; --생긴게 영어문법
+
+DESC EMP_DDL;
+
+--기존 TYPE 변경
+ALTER TABLE EMP_DDL MODIFY EMPNO NUMBER(5);
+
+--기존 컬럼 삭제
+ALTER TABLE EMP_DDL DROP COLUMN TEL;
+
+--테이블 이름 변경
+RENAME EMP_DDL TO EMP_RENAME;
+
+DESC EMP_RENAME;
+
+--실습1 : MEMBER 테이블 작성
+CREATE TABLE MEMBER(
+    ID CHAR(8),
+    NAME NVARCHAR2(10),
+    ADDR NVARCHAR2(50),
+    NATION NCHAR(4),
+    EMAIL VARCHAR2(50), --보통 영어로 씀
+    AGE NUMBER(7,2));
+
+drop table member;
+DESC MEMBER;
+DESC member;
+
+--실습2 : member 테이블 변경
+--1) bigo 열 추가
+ALTER TABLE MEMBER ADD BIGO NVARCHAR2(20);
+--2) bigo 크기 변경
+ALTER TABLE MEMBER MODIFY BIGO NVARCHAR2(30);
+DESC MEMBER;
+--3) bigo 이름 변경
+ALTER TABLE MEMBER RENAME COLUMN BIGO TO REMARK;
+--4) member 테이블 삭제
+drop table member;
+
